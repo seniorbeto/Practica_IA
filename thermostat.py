@@ -1,57 +1,39 @@
-import random as rd
+import random as rnd
 import numpy as np
 import pandas as pd
-from constants import *
 
-class Main():
-    def __init__(self):
-        self.array_ON = self.matrix_creation("data/TABLA DE TRANSICIONES - ON.csv")
-        self.array_OFF = self.matrix_creation("data/TABLA DE TRANSICIONES - OFF.csv")
 
-        # Se comprueba que los datos de los cvs tienen los mismos estados
-        if not np.array_equal(self.array_ON[:,0],self.array_OFF[:,0]):
-            raise ValueError("Unmatching states")
+class MarkovChain:
+    def __init__(self, states, transition_matrix_on, transition_matrix_off):
+        self.states = states
+        self.transition_matrix_on = transition_matrix_on 
+        self.transition_matrix_off = transition_matrix_off
+        # check if the transition matrix is valid
+        self.__check_transition_matrix(transition_matrix_on)
+        self.__check_transition_matrix(transition_matrix_off)
 
-        # Se crea un diccionario con el conjunto de estados y un identificador (útil más adelante creo)
-        self.states = {}
-        i = 0
-        for j in self.array_ON[:, 0]:
-            self.states.update({i: j})
-            i += 1
-        self.current_temperature = INIT_TEMPERATURE
-        self.is_ON = INIT_THERMOSTAT_STATE
-        while True:
-            self.update_state()
+        # set the initial state
+        self.__current_state_index = rnd.choice(range(len(self.states)))
+        self.current_state = self.states[self.__current_state_index]
 
-    def matrix_creation(self, file) -> np:
-        """
-        Crea una matriz desde un fichero .csv
-        :param file:
-        :return:
-        """
-        data_frame = pd.read_csv(file)
-        return pd.read_csv(file).to_numpy()
+    def __check_transition_matrix(self, transition_matrix):
+        # check if the transition matrix has the correct dimensions
+        if len(transition_matrix) != len(self.states):
+            raise ValueError('Invalid transition matrix dimensions')
+        
+        # check if the transition matrix is valid
+        for row in transition_matrix:
+            if sum(row) != 1:
+                raise ValueError('Invalid transition matrix probabilities')
 
-    def put_on(self):
-        """
-        Enciende el termostato
-        :return:
-        """
-        self.current_thermostate_state = True
 
-    def put_off(self):
-        """
-        Apaga el termostato
-        :return:
-        """
-        self.current_thermostate_state = False
+        
 
-    def update_state(self):
-        # Definimos los estados a los que podríamos ir desde donde estamos y sus ponderaciones
-        if self.is_ON:
-            pass
-        if self.current_temperature < OBJECTIVE and not self.is_ON:
-            self.put_on()
-
-if __name__ == "__main__":
-    Main()
+    def __advance_time(self):
+        if self.current_state == 'on':
+            self.current_state = np.random.choice(
+                self.states, p=self.transition_matrix_on[self.__current_state_index])
+        else:
+            self.current_state = np.random.choice(
+                self.states, p=self.transition_matrix_off[self.__current_state_index])
+        
