@@ -17,8 +17,8 @@ class Action():
         self.__probabilities = probabilities 
 
     def __str__(self):
-        asociated_state = "Estado asociado a la acción: " + self.__current_state + ". "
-        coste = "Con coste: " + str(self.__cost) + ". "
+        asociated_state = "Asociated state: " + self.__current_state + ". "
+        coste = "With cost: " + str(self.__cost) + ". "
         return asociated_state + coste
 
     @property 
@@ -43,6 +43,7 @@ class State():
         """
         self.__state = id
         self.__actions = actions
+        self.__V = 0
 
     def __str__(self):
         num_actions = "State actions: " + str(len(self.__actions))
@@ -60,7 +61,13 @@ class State():
     def id(self):
         return self.__state
 
+    @property
+    def V(self):
+        return self.__V
 
+    @V.setter
+    def set_V(self, newv: int):
+        self.__V = newv
 
 
 class Main():
@@ -70,9 +77,6 @@ class Main():
         
         states_df = self.data_ON.columns.values.tolist() # get states from dataframe
         # Quitamos los estados generados erróneamente (BUG)
-        states_df.remove("17.1")
-        states_df.remove("17.5.1")
-
         self.states = [] # List of states of type(State)
 
         # create actions list for each state
@@ -86,10 +90,7 @@ class Main():
             self.states.append(State(str(state), actions))
             i += 1
 
-        for i in self.states:
-            print(i)
-            for action in i.actions:
-                print (action)
+        print(self.calculate_bellman(self.states[2]))
 
     def __dataframe_creation(self, file) -> pd.DataFrame:
         """
@@ -101,18 +102,32 @@ class Main():
         data_frame.fillna(0, inplace=True)
         return data_frame
 
-    @staticmethod
-    def calculate_bellman(curr_state:State) -> int:
+    def calculate_bellman(self, curr_state:State) -> int:
         """
         Using Bellman's ecuation, it returns the most correct policy for a 
         current state.
         """
-        v = [0]
-        i = 0
+        options = []
         for action in curr_state.actions:
-            while (v[i-1]!=v[i]):
-                pass
+            posible_transition_states = []
+            prob_transition_states = []
 
+            for i in action.probabilities:
+                if action.probabilities[i] != 0:
+                    posible_transition_states.append(i)
+                    prob_transition_states.append(action.probabilities[i])
+
+            option = 0
+            for i in range(len(posible_transition_states)):
+                # We search for the V of the state
+                for state in self.states:
+                    if state.id == posible_transition_states[i]:
+                        v = state.V
+                option += v*float(prob_transition_states[i])
+
+            options.append(option + action.cost)
+
+        return min(options)
     
 
 
