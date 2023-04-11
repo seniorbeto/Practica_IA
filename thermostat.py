@@ -90,7 +90,23 @@ class Main():
             self.states.append(State(str(state), actions))
             i += 1
 
-        print(self.calculate_bellman(self.states[2]))
+        self.__update_V(10000)
+
+    def __update_V(self, iterations: int):
+        """
+        Updates de V (Expected Value) of each state conforming the self.states list
+        :return:
+        """
+        for iter in range(iterations):
+            new_Vs = []
+            for state in self.states:
+                new_Vs.append(self.calculate_bellman(state))
+            for i in range(len(self.states)):
+                if self.states[i].id != str(OBJECTIVE):
+                    self.states[i].set_V = new_Vs[i]
+        for state in self.states:
+            print(state.V)
+
 
     def __dataframe_creation(self, file) -> pd.DataFrame:
         """
@@ -128,6 +144,7 @@ class Main():
             options.append(option + action.cost)
 
         return min(options)
+
     
 
 
