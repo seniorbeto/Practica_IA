@@ -1,17 +1,24 @@
 import random as rd
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from constants import *
 
+def graficar(dominio, imagen):
+    plt.plot(dominio, imagen)
+    plt.grid(True)
+    plt.show()
+
 
 class Action():
-    def __init__(self, cost: str, probabilities:dict, current_state: str):
+    def __init__(self,id: str, cost: str, probabilities:dict, current_state: str):
         """
         Cost is the cost of the action (float)
         probabilities is a dictionary with the probabilities of going to the next state
             - key: next State (object state)
             - value: probability (float)
         """
+        self.__id = id
         self.__current_state = current_state
         self.__cost = cost
         self.__probabilities = probabilities 
@@ -19,7 +26,11 @@ class Action():
     def __str__(self):
         asociated_state = "Asociated state: " + self.__current_state + ". "
         coste = "With cost: " + str(self.__cost) + ". "
-        return asociated_state + coste
+        return self.__id + " " + asociated_state + coste
+
+    @property
+    def id(self):
+        return self.__id
 
     @property 
     def cost(self):
@@ -41,6 +52,7 @@ class State():
         State is a class that contains the information of a state
         actions is a list of the Actions that can be done in the state
         """
+        self.prefered_action = None
         self.__state = id
         self.__actions = actions
         self.__V = 0
@@ -83,14 +95,22 @@ class Main():
         i = 0
         for state in states_df:
             probabilities_ON = dict(self.data_ON.iloc[i])
-            action_on = Action(COST_ON, probabilities_ON, str(state))
+            action_on = Action("Turn ON", COST_ON, probabilities_ON, str(state))
             probabilities_OFF = dict(self.data_OFF.iloc[i])
-            action_off = Action(COST_OFF, probabilities_OFF, str(state))
+            action_off = Action("Turn OFF", COST_OFF, probabilities_OFF, str(state))
             actions = [action_on, action_off]
             self.states.append(State(str(state), actions))
             i += 1
 
-        self.__update_V(10000)
+        self.__update_V(100)
+        # To graph, we create de list of states and the list of Vs
+        states = []
+        Vs = []
+        for state in self.states:
+            states.append(state.id)
+            Vs.append(state.V)
+
+        graficar(states, Vs)
 
     def __update_V(self, iterations: int):
         """
@@ -105,7 +125,8 @@ class Main():
                 if self.states[i].id != str(OBJECTIVE):
                     self.states[i].set_V = new_Vs[i]
         for state in self.states:
-            print(state.V)
+            print("V(", state.id,"):",round(state.V, 2))
+            print("Acción recomendada:", state.prefered_action.id)
 
 
     def __dataframe_creation(self, file) -> pd.DataFrame:
@@ -121,9 +142,11 @@ class Main():
     def calculate_bellman(self, curr_state:State) -> int:
         """
         Using Bellman's ecuation, it returns the most correct policy for a 
-        current state.
+        current state. It also updates the prefered action of the state based on the result
+        :param curr_state: State of wich we want to know the best action policy
+        :return: The V of the state
         """
-        options = []
+        min_option = None
         for action in curr_state.actions:
             posible_transition_states = []
             prob_transition_states = []
@@ -141,16 +164,14 @@ class Main():
                         v = state.V
                 option += v*float(prob_transition_states[i])
 
-            options.append(option + action.cost)
+            if not min_option:
+                min_option = option + action.cost
+                curr_state.prefered_action = action
+            elif option < min_option:
+                min_option = option + action.cost
+                curr_state.prefered_action = action
 
-        return min(options)
-
-    
-
-
-
-
-
+        return min_option
     
 if __name__ == "__main__":
     Main()
