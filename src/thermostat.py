@@ -3,90 +3,30 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from constants import *
+from state import State
+from action import Action
 
-def graficar(dominio, imagen):
-    plt.plot(dominio, imagen)
+def graficar(dominio: list, imagen: list, num_adestacar: int = None, guardar: str = False):
+    plt.plot(dominio, imagen, label = 'V de cada estado')
     plt.grid(True)
-    plt.show()
+    plt.xlabel('Estados')
+    plt.ylabel('V')
+    plt.legend()
 
+    if num_adestacar:
+        plt.gca().get_xticklabels()[num_adestacar].set_color('red')
 
-class Action():
-    def __init__(self,id: str, cost: str, probabilities:dict, current_state: str):
-        """
-        Cost is the cost of the action (float)
-        probabilities is a dictionary with the probabilities of going to the next state
-            - key: next State (object state)
-            - value: probability (float)
-        """
-        self.__id = id
-        self.__current_state = current_state
-        self.__cost = cost
-        self.__probabilities = probabilities 
+    if guardar:
+        plt.savefig(guardar)
+    else:
+        plt.show()
 
-    def __str__(self):
-        asociated_state = "Asociated state: " + self.__current_state + ". "
-        coste = "With cost: " + str(self.__cost) + ". "
-        return self.__id + " " + asociated_state + coste
-
-    @property
-    def id(self):
-        return self.__id
-
-    @property 
-    def cost(self):
-        return self.__cost
-    
-    @property
-    def probabilities(self):
-        return self.__probabilities
-
-    @property
-    def current_state(self):
-        return self.__current_state
-    
-
-
-class State():
-    def __init__(self, id: str, actions: list = []):
-        """ 
-        State is a class that contains the information of a state
-        actions is a list of the Actions that can be done in the state
-        """
-        self.prefered_action = None
-        self.__state = id
-        self.__actions = actions
-        self.__V = 0
-
-    def __str__(self):
-        num_actions = "State actions: " + str(len(self.__actions))
-        return "State id: " + self.__state + "  " + num_actions
-    
-    @property
-    def actions(self):
-        return self.__actions
-
-    def set_action(self, action: Action):
-        if action not in self.__actions:
-            self.__actions.append(action)
-
-    @property
-    def id(self):
-        return self.__state
-
-    @property
-    def V(self):
-        return self.__V
-
-    @V.setter
-    def set_V(self, newv: int):
-        self.__V = newv
-
-
-class Main():
+class Main:
     def __init__(self):
+
         self.data_ON = self.__dataframe_creation("data/TABLA DE TRANSICIONES - ON.csv")
         self.data_OFF = self.__dataframe_creation("data/TABLA DE TRANSICIONES - OFF.csv")
-        
+
         states_df = self.data_ON.columns.values.tolist() # get states from dataframe
         # Quitamos los estados generados erróneamente (BUG)
         self.states = [] # List of states of type(State)
@@ -102,15 +42,34 @@ class Main():
             self.states.append(State(str(state), actions))
             i += 1
 
+
+        """# EJEMPLO DE CLASE 
+        quimioterapia_t = Action("Quimioterapia", 10, {"Tumor": 0.7, "Cura": 0.3}, "Tumor")
+        radioterapia_t = Action("Radioterapia", 6, {"Tumor": 0.1, "Metástasis": 0.6, "Cura": 0.3}, "Tumor")
+        cirujia_t = Action("Cirujía", 100, {"Tumor": 0.4, "Metástasis": 0.1, "Cura": 0.5}, "Tumor")
+
+        self.states = [State("Cura"), State("Tumor", [quimioterapia_t, radioterapia_t, cirujia_t])]
+
+        quimioterapia_m = Action("Quimioterapia", 10, {"Metástasis": 0.4, "Cura": 0.6}, "Metástasis")
+        radioterapia_m = Action("Radioterapia", 6, {"Metástasis": 0.7, "Cura": 0.3}, "Metástasis")
+
+        self.states.append(State("Metástasis", [quimioterapia_m, radioterapia_m]))"""
+
+
         self.__update_V(100)
         # To graph, we create de list of states and the list of Vs
         states = []
         Vs = []
+        num = 0
+        i = 0
         for state in self.states:
             states.append(state.id)
             Vs.append(state.V)
+            if state.id == str(OBJECTIVE):
+                num = i
+            i += 1
 
-        graficar(states, Vs)
+        graficar(states, Vs, num)
 
     def __update_V(self, iterations: int):
         """
@@ -126,13 +85,13 @@ class Main():
                     self.states[i].set_V = new_Vs[i]
         for state in self.states:
             print("V(", state.id,"):",round(state.V, 2))
-            print("Acción recomendada:", state.prefered_action.id)
+            print("Acción recomendada:", state.prefered_action)
 
 
     def __dataframe_creation(self, file) -> pd.DataFrame:
         """
         Creates a dataframe from .csv
-        :param file:
+        :param file: .csv directory
         :return:
         """
         data_frame = pd.read_csv(file, index_col=0, sep=',')
@@ -167,7 +126,7 @@ class Main():
             if not min_option:
                 min_option = option + action.cost
                 curr_state.prefered_action = action
-            elif option < min_option:
+            elif option + action.cost < min_option:
                 min_option = option + action.cost
                 curr_state.prefered_action = action
 
