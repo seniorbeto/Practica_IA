@@ -32,5 +32,5 @@ class State():
         return self.__V
 
     @V.setter
-    def set_V(self, newv: int):
+    def V(self, newv: int):
         self.__V = newv

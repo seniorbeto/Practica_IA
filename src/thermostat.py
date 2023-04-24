@@ -82,8 +82,8 @@ class Main:
             for state in self.states:
                 new_Vs.append(self.calculate_bellman(state))
             for i in range(len(self.states)):
-                if self.states[i].id != str(OBJECTIVE):
-                    self.states[i].set_V = new_Vs[i]
+                if self.states[i].id != str(OBJECTIVE): # TODO: OBJECTIVE no debería ser un estado absorbente, pero entonces no converge
+                    self.states[i].V = new_Vs[i]
         for state in self.states:
             print("V(", state.id,"):",round(state.V, 2))
             print("Acción recomendada:", state.prefered_action)
