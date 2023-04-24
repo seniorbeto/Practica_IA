@@ -2,9 +2,10 @@ import random as rd
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from constants import *
+from config import *
 from state import State
 from action import Action
+
 
 def graficar(dominio: list, imagen: list, num_adestacar: int = None, guardar: str = False):
     plt.plot(dominio, imagen, label = 'V de cada estado')
@@ -24,8 +25,8 @@ def graficar(dominio: list, imagen: list, num_adestacar: int = None, guardar: st
 class Main:
     def __init__(self):
 
-        self.data_ON = self.__dataframe_creation("data/TABLA DE TRANSICIONES - ON.csv")
-        self.data_OFF = self.__dataframe_creation("data/TABLA DE TRANSICIONES - OFF.csv")
+        self.data_ON = self.__dataframe_creation(SOURCE_PATH+"/data/TABLA DE TRANSICIONES - ON.csv")
+        self.data_OFF = self.__dataframe_creation(SOURCE_PATH+"/data/TABLA DE TRANSICIONES - OFF.csv")
 
         states_df = self.data_ON.columns.values.tolist() # get states from dataframe
         # Quitamos los estados generados erróneamente (BUG)
