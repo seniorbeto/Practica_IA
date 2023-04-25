@@ -64,9 +64,9 @@ class Thermostat:
             for i in range(len(self.states)):
                 if self.states[i].id != str(self.objective): # TODO: OBJECTIVE no debería ser un estado absorbente, pero entonces no converge
                     self.states[i].V = new_Vs[i]
-        """for state in self.states:
+        for state in self.states:
             print("V(", state.id,"):",round(state.V, 2))
-            print("Acción recomendada:", state.prefered_action)"""
+            print("Acción recomendada:", state.prefered_action)
 
     def __dataframe_creation(self, file) -> pd.DataFrame:
         """
