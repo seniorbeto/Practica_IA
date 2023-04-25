@@ -1,61 +1,43 @@
-import random as rd
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
-from config import *
-from state import State
-from action import Action
+from .state import State
+from .action import Action
 
 
-def graficar(dominio: list, imagen: list, num_adestacar: int = None, guardar: str = False):
-    plt.plot(dominio, imagen, label = 'V de cada estado')
-    plt.grid(True)
-    plt.xlabel('Estados')
-    plt.ylabel('V')
-    plt.legend()
 
-    if num_adestacar:
-        plt.gca().get_xticklabels()[num_adestacar].set_color('red')
 
-    if guardar:
-        plt.savefig(guardar)
-    else:
-        plt.show()
-
-class Main:
-    def __init__(self):
-
-        self.data_ON = self.__dataframe_creation(SOURCE_PATH+"/data/TABLA DE TRANSICIONES - ON.csv")
-        self.data_OFF = self.__dataframe_creation(SOURCE_PATH+"/data/TABLA DE TRANSICIONES - OFF.csv")
+class Thermostat:
+    """
+    Class that represents the thermostat problem
+    """
+    def __init__(self, path_data_on:str, path_data_off: str, objetive_temp: str,
+                cost_on: str, cost_off: str):
+        """
+        Constructor of the class
+        :param path_data_on: Path to the .csv file with the data of the ON action
+        :param path_data_off: Path to the .csv file with the data of the OFF action
+        :param inital_temp: Initial temperature of the thermostat
+        :param objetive_temp: Temperature that the thermostat must reach
+        :param cost_on: Cost of the ON action
+        :param cost_off: Cost of the OFF action
+        """
+        self.cost_on = cost_on
+        self.cost_off = cost_off
+        self.objective = objetive_temp
+        self.data_ON = self.__dataframe_creation(path_data_on)
+        self.data_OFF = self.__dataframe_creation(path_data_off)
 
         states_df = self.data_ON.columns.values.tolist() # get states from dataframe
-        # Quitamos los estados generados erróneamente (BUG)
         self.states = [] # List of states of type(State)
-
         # create actions list for each state
         i = 0
         for state in states_df:
             probabilities_ON = dict(self.data_ON.iloc[i])
-            action_on = Action("Turn ON", COST_ON, probabilities_ON, str(state))
+            action_on = Action("Turn ON", self.cost_on, probabilities_ON, str(state))
             probabilities_OFF = dict(self.data_OFF.iloc[i])
-            action_off = Action("Turn OFF", COST_OFF, probabilities_OFF, str(state))
+            action_off = Action("Turn OFF", self.cost_off, probabilities_OFF, str(state))
             actions = [action_on, action_off]
             self.states.append(State(str(state), actions))
             i += 1
-
-
-        """# EJEMPLO DE CLASE 
-        quimioterapia_t = Action("Quimioterapia", 10, {"Tumor": 0.7, "Cura": 0.3}, "Tumor")
-        radioterapia_t = Action("Radioterapia", 6, {"Tumor": 0.1, "Metástasis": 0.6, "Cura": 0.3}, "Tumor")
-        cirujia_t = Action("Cirujía", 100, {"Tumor": 0.4, "Metástasis": 0.1, "Cura": 0.5}, "Tumor")
-
-        self.states = [State("Cura"), State("Tumor", [quimioterapia_t, radioterapia_t, cirujia_t])]
-
-        quimioterapia_m = Action("Quimioterapia", 10, {"Metástasis": 0.4, "Cura": 0.6}, "Metástasis")
-        radioterapia_m = Action("Radioterapia", 6, {"Metástasis": 0.7, "Cura": 0.3}, "Metástasis")
-
-        self.states.append(State("Metástasis", [quimioterapia_m, radioterapia_m]))"""
-
 
         self.__update_V(100)
         # To graph, we create de list of states and the list of Vs
@@ -66,11 +48,9 @@ class Main:
         for state in self.states:
             states.append(state.id)
             Vs.append(state.V)
-            if state.id == str(OBJECTIVE):
+            if state.id == str(self.objective):
                 num = i
-            i += 1
-
-        graficar(states, Vs, num)
+            i += 1        
 
     def __update_V(self, iterations: int):
         """
@@ -82,12 +62,11 @@ class Main:
             for state in self.states:
                 new_Vs.append(self.calculate_bellman(state))
             for i in range(len(self.states)):
-                if self.states[i].id != str(OBJECTIVE): # TODO: OBJECTIVE no debería ser un estado absorbente, pero entonces no converge
+                if self.states[i].id != str(self.objective): # TODO: OBJECTIVE no debería ser un estado absorbente, pero entonces no converge
                     self.states[i].V = new_Vs[i]
-        for state in self.states:
+        """for state in self.states:
             print("V(", state.id,"):",round(state.V, 2))
-            print("Acción recomendada:", state.prefered_action)
-
+            print("Acción recomendada:", state.prefered_action)"""
 
     def __dataframe_creation(self, file) -> pd.DataFrame:
         """
@@ -133,5 +112,15 @@ class Main:
 
         return min_option
     
+    def get_state(self, id: str) -> State:
+        """
+        Returns the state with the given id
+        :param id: id of the state
+        :return: State
+        """
+        for state in self.states:
+            if state.id == id:
+                return state
+    
 if __name__ == "__main__":
-    Main()
+    Thermostat()

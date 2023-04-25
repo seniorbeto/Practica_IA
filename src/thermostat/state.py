@@ -1,4 +1,4 @@
-from action import Action
+from .action import Action
 
 class State():
     def __init__(self, id: str, actions: list = []):
@@ -12,8 +12,7 @@ class State():
         self.__V = 0
 
     def __str__(self):
-        num_actions = "State actions: " + str(len(self.__actions))
-        return "State id: " + self.__state + "  " + num_actions
+        return str(self.__state)
 
     @property
     def actions(self):
