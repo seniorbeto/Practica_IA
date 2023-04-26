@@ -10,8 +10,8 @@ def simulate(thermostat:Thermostat, iterations: int):
     :return: List of the states that the thermostat passed
     """
     states_log = []
-    state = rnd.choice(thermostat.states)
-    #state = thermostat.states[-1]
+    #state = rnd.choice(thermostat.states)
+    state = thermostat.states[0]
     states_log.append(str(state))
     for i in range(iterations-1):
         action = state.prefered_action
@@ -24,26 +24,22 @@ def simulate(thermostat:Thermostat, iterations: int):
         states_log.append(str(state))
     return states_log
 
-def draw_graph(states_log:list):
+def draw_graph(states_log: list, thermostat: Thermostat):
     """
     Draws a graph of the states that the thermostat passed
     :param states_log: List of the states that the thermostat passed
     :return: None
     """
-    states = ["16", "16,5", "17", "17,5", "18", "18,5", 
-              "19", "19,5", "20", "20,5", "21", "21,5", 
-              "22", "22,5", "23", "23,5", "24", "24,5", 
-              "25"]
-    obj = [22 for i in range(len(states_log))]
+    states = [i.id for i in thermostat.states]
+    objective = thermostat.objective
+    obj = [objective for i in range(len(states_log))]
     states_log_ints = []
     for i in states_log:
         states_log_ints.append(float(i))
     eje_x = list(range(1, len(states_log) + 1))
     plt.xlim([1, len(states_log)])
     plt.ylim(16, len(states)+6)
-    plt.yticks([16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5,
-                20.0, 20.5, 21.0, 21.5, 22.0, 22.5, 23.0, 23.5,
-                24.0, 24.5, 25.0])
+    plt.yticks([float(i.id) for i in thermostat.states])
     plt.grid(True)
     plt.ylabel('Estado')
     plt.xlabel('Iteración (30 mins/iteración)')
@@ -57,9 +53,8 @@ thermostat = Thermostat("data/TABLA DE TRANSICIONES - ON.csv",
                         "data/TABLA DE TRANSICIONES - OFF.csv",
                         objetive_temp=22,
                         cost_on=1,
-                        cost_off=0.3)
+                        cost_off=0.03)
 
-a = simulate(thermostat, 20)
-print(a)
-draw_graph(a)
+a = simulate(thermostat, 200)
+draw_graph(a, thermostat)
 

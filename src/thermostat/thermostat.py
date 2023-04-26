@@ -39,7 +39,7 @@ class Thermostat:
             self.states.append(State(str(state), actions))
             i += 1
 
-        self.__update_V(100)
+        self.__update_V()
         # To graph, we create de list of states and the list of Vs
         states = []
         Vs = []
@@ -50,23 +50,48 @@ class Thermostat:
             Vs.append(state.V)
             if state.id == str(self.objective):
                 num = i
-            i += 1        
+            i += 1
 
-    def __update_V(self, iterations: int):
+    def __update_V(self, iterations: int = None) -> None:
         """
         Updates de V (Expected Value) of each state conforming the self.states list
-        :return:
+        :return: None
         """
-        for iter in range(iterations):
+        NUM_DECIMALS = 10
+
+        if iterations:
+            for iter in range(iterations):
+                new_Vs = []
+                for state in self.states:
+                    new_Vs.append(self.calculate_bellman(state))
+                for i in range(len(self.states)):
+                    if self.states[i].id != str(self.objective):
+                        self.states[i].V = new_Vs[i]
+        else:
+            converge = False
             new_Vs = []
-            for state in self.states:
-                new_Vs.append(self.calculate_bellman(state))
-            for i in range(len(self.states)):
-                if self.states[i].id != str(self.objective): # TODO: OBJECTIVE no debería ser un estado absorbente, pero entonces no converge
-                    self.states[i].V = new_Vs[i]
+            s = 0
+            while not converge:
+                s += 1
+                old_Vs = new_Vs
+                new_Vs = []
+                for state in self.states:
+                    new_Vs.append(self.calculate_bellman(state))
+                for i in range(len(self.states)):
+                    if self.states[i].id != str(self.objective):
+                        self.states[i].V = new_Vs[i]
+                if len(old_Vs) == len(new_Vs):
+                    for i in range(len(new_Vs)):
+                        if int(new_Vs[i] * (10**NUM_DECIMALS)) == int(old_Vs[i] * (10**NUM_DECIMALS)):
+                            converge = True
+                        else:
+                            converge = False
+                            break
+            print(s)
         for state in self.states:
-            print("V(", state.id,"):",round(state.V, 2))
+            print("V(", state.id, "):", state.V)
             print("Acción recomendada:", state.prefered_action)
+
 
     def __dataframe_creation(self, file) -> pd.DataFrame:
         """
