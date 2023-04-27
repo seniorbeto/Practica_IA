@@ -38,9 +38,13 @@ class Thermostat:
             i += 1
 
         self.__update_V()
+
+    def __str__(self):
+        text = ""
         for state in self.states:
-            print("V(", state.id, "):", round(state.V, 3))
-            print("Acción recomendada:", state.prefered_action)
+            text += "V(" + str(state.id) + "): " + str(round(state.V, 3)) + "\n"
+            text += "Acción recomendada: " + str(state.prefered_action) + "\n"
+        return text
 
     def __update_V(self, iterations: int = None) -> None:
         """
@@ -87,7 +91,7 @@ class Thermostat:
         data_frame.fillna(0, inplace=True)
         return data_frame
 
-    def calculate_bellman(self, curr_state:State) -> int:
+    def calculate_bellman(self, curr_state: State) -> int:
         """
         Using Bellman's ecuation, it returns the most correct policy for a 
         current state. It also updates the prefered action of the state based on the result
@@ -130,6 +134,3 @@ class Thermostat:
         for state in self.states:
             if float(state.id) == float(id):
                 return state
-    
-if __name__ == "__main__":
-    Thermostat()
