@@ -1,8 +1,10 @@
-from thermostat.thermostat import Thermostat
+
+import os
 import matplotlib.pyplot as plt
 import random as rnd
+from thermostat.thermostat import Thermostat
 
-def simulate(thermostat:Thermostat, iterations: int):
+def simulate(thermostat: Thermostat, iterations: int, init_thermostat_state: float = 16):
     """
     Simulates the thermostat problem
     :param thermostat: Thermostat object
@@ -10,8 +12,7 @@ def simulate(thermostat:Thermostat, iterations: int):
     :return: List of the states that the thermostat passed
     """
     states_log = []
-    #state = rnd.choice(thermostat.states)
-    state = thermostat.states[0]
+    state = thermostat.get_state(init_thermostat_state)
     states_log.append(str(state))
     for i in range(iterations-1):
         action = state.prefered_action
@@ -23,6 +24,7 @@ def simulate(thermostat:Thermostat, iterations: int):
         state = thermostat.get_state(rnd.choices(posible_transition_states, prob_transition_states)[0])
         states_log.append(str(state))
     return states_log
+
 
 def draw_graph(states_log: list, thermostat: Thermostat):
     """
@@ -49,12 +51,12 @@ def draw_graph(states_log: list, thermostat: Thermostat):
     plt.show()
 
 
-thermostat = Thermostat("data/TABLA DE TRANSICIONES - ON.csv",
-                        "data/TABLA DE TRANSICIONES - OFF.csv",
+thermostat = Thermostat(os.path.join(os.path.dirname(__file__), "data/TABLA DE TRANSICIONES - ON.csv"),
+                        os.path.join(os.path.dirname(__file__), "data/TABLA DE TRANSICIONES - OFF.csv"),
                         objetive_temp=22,
                         cost_on=1,
                         cost_off=0.03)
 
-a = simulate(thermostat, 200)
-draw_graph(a, thermostat)
+state_path = simulate(thermostat, 50, 17)
+draw_graph(state_path, thermostat)
 

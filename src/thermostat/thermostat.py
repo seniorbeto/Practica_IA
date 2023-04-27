@@ -3,8 +3,6 @@ from .state import State
 from .action import Action
 
 
-
-
 class Thermostat:
     """
     Class that represents the thermostat problem
@@ -40,17 +38,9 @@ class Thermostat:
             i += 1
 
         self.__update_V()
-        # To graph, we create de list of states and the list of Vs
-        states = []
-        Vs = []
-        num = 0
-        i = 0
         for state in self.states:
-            states.append(state.id)
-            Vs.append(state.V)
-            if state.id == str(self.objective):
-                num = i
-            i += 1
+            print("V(", state.id, "):", round(state.V, 3))
+            print("Acción recomendada:", state.prefered_action)
 
     def __update_V(self, iterations: int = None) -> None:
         """
@@ -70,9 +60,7 @@ class Thermostat:
         else:
             converge = False
             new_Vs = []
-            s = 0
             while not converge:
-                s += 1
                 old_Vs = new_Vs
                 new_Vs = []
                 for state in self.states:
@@ -87,10 +75,6 @@ class Thermostat:
                         else:
                             converge = False
                             break
-            print(s)
-        for state in self.states:
-            print("V(", state.id, "):", state.V)
-            print("Acción recomendada:", state.prefered_action)
 
 
     def __dataframe_creation(self, file) -> pd.DataFrame:
@@ -144,7 +128,7 @@ class Thermostat:
         :return: State
         """
         for state in self.states:
-            if state.id == id:
+            if float(state.id) == float(id):
                 return state
     
 if __name__ == "__main__":
