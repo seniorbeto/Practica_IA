@@ -12,6 +12,12 @@ class Action():
         self.__id = id
         self.__current_state = current_state
         self.__cost = cost
+        check = 0
+        for i in probabilities:
+            check += probabilities[i]
+        print(check)
+        if round(check, 10) != 1:
+            raise ValueError("Transition probabilities of an action must sum 1")
         self.__probabilities = probabilities
 
     def __str__(self):
