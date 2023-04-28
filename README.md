@@ -26,7 +26,9 @@ que se desee en la llamada de lal función `self.__update_V()`.
 
 ## Metodo de uso
 
-Utilizar esta herramienta es muy sencillo, desde el archivo main.py, se pueden generar instancias de la clase 
+Utilizar esta herramienta es muy sencillo, primero de todo, hay que instalar 
+las librerías necesarias: desde la terminal (y recomendablemente dentro de un entorno virtual)
+ejecutar el siguiente comando: `pip install -r requirements.txt`. Una vez hecho esto, desde el archivo main.py, se pueden generar instancias de la clase 
 Thermostat configurando los parámetros del mismo:
 + path_data_on: ruta de la tabla de transiciones de la acción "Turn ON" (se recomienda no modificar)
 + path_data_off: ruta de la tabla de transiciones de la acción "Turn OFF" (se recomienda no modificar)
@@ -38,8 +40,8 @@ Si imprimimos este objeto por pantalla, se mostrará por la terminal
 un registro de cada uno de los estados del modelo, junto con su valor esperado y su política óptima.
 Por ejemplo:
 ```python
-thermostat = Thermostat(os.path.join(os.path.dirname(__file__), "data/TABLA DE TRANSICIONES - ON.csv"),
-                        os.path.join(os.path.dirname(__file__), "data/TABLA DE TRANSICIONES - OFF.csv"),
+thermostat = Thermostat(PATH_ON,
+                        PATH_OFF,
                         objetive_temp=22,
                         cost_on=1,
                         cost_off=0.03)
@@ -94,8 +96,8 @@ según el enunciado propuesto) y el estado sobre el cual se incicia la simulaci�
 Esta función devuelve una lista con los estados a los que el termostato ha transicionado según su acción 
 elegida como política óptima. De tal forma, el siguiente fragmento de código:
 ```python
-thermostat = Thermostat(os.path.join(os.path.dirname(__file__), "data/TABLA DE TRANSICIONES - ON.csv"),
-                        os.path.join(os.path.dirname(__file__), "data/TABLA DE TRANSICIONES - OFF.csv"),
+thermostat = Thermostat(PATH_ON,
+                        PATH_OFF,
                         objetive_temp=22,
                         cost_on=1,
                         cost_off=0.03)
