@@ -6,7 +6,7 @@ de la manera más general posible en python. Para ello se ha hecho uso de las ec
 para distinguir la política óptima de cada estado y así poder generar una simulación realista 
 del problema propuesto. 
 
-<img src="https://latex.codecogs.com/svg.image?{\color{White}&space;V(s)=\max_{a&space;\in&space;A(s)}\left[C(a)&space;&plus;&space;\sum_{s'&space;\in&space;S}P(s'&space;\mid&space;s,a)V(s')\right]}" title="https://latex.codecogs.com/svg.image?{\color{White} V(s)=\max_{a \in A(s)}\left[C(a) + \sum_{s' \in S}P(s' \mid s,a)V(s')\right]}" />
+<img src="https://latex.codecogs.com/svg.image?{\color{White}&space;V(s)=\min_{a&space;\in&space;A(s)}\left[C(a)&space;&plus;&space;\sum_{s'&space;\in&space;S}P(s'&space;\mid&space;s,a)V(s')\right]}" title="https://latex.codecogs.com/svg.image?{\color{White} V(s)=\max_{a \in A(s)}\left[C(a) + \sum_{s' \in S}P(s' \mid s,a)V(s')\right]}" />
 
 El objetivo principal era generalizar la idea al máximo, para poder introducir en el código cualquier 
 problema codificabe en un MDP y así, tener máxima flexibilidad a la hora de cambiar parámetros y poder
