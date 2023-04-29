@@ -15,7 +15,6 @@ class Action():
         check = 0
         for i in probabilities:
             check += probabilities[i]
-        print(check)
         if round(check, 10) != 1:
             raise ValueError("Transition probabilities of an action must sum 1")
         self.__probabilities = probabilities
